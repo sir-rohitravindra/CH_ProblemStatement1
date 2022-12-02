@@ -1,9 +1,43 @@
 # note: YAML definitions for multiple components/resources can be bundled together into one YAML file
 # '---' is used to separate the definitions of the components/resources
 
+
+
 # define the `Deployment` for the mongodb server
----
+#---
 # define the `Deployment` for mongo-express
----
+#---
 # define the `Deployment` for flask-app
 # set ImagePullPolicy to 'Never' to allow the use of the locally built image
+
+
+# Use root/example as user/password credentials
+version: '3'
+
+services:
+  mongodb:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: admin
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
+      ME_CONFIG_MONGODB_URL: mongodb://root:admin@mongodb:27017/
+
+  flask-app:
+    image: flask-app:v1
+    restart: always
+    ports: 
+      - 5001:5001
+    depends_on:
+      - mongodb
